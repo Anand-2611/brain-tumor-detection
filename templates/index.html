@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NeuraScan AI — Brain Tumor Detection</title>
+
+  <!-- Google Fonts: Syne (display) + DM Sans (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+
+  <!-- Phosphor Icons (lightweight icon set) -->
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/index.js" defer></script>
+
+  <!-- Our custom stylesheet -->
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+
+<body>
+
+  <!-- ══════════════════════════════════════════════════
+       PARTICLE CANVAS (animated background dots)
+  ══════════════════════════════════════════════════ -->
+  <canvas id="particleCanvas"></canvas>
+
+  <!-- ══════════════════════════════════════════════════
+       NAVBAR
+  ══════════════════════════════════════════════════ -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <!-- Logo -->
+      <a href="#" class="nav-logo">
+        <span class="logo-icon"><i class="ph-bold ph-brain"></i></span>
+        <span class="logo-text">Neura<span class="accent">Scan</span></span>
+      </a>
+
+      <!-- Nav links -->
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#hero"       class="nav-link">Home</a></li>
+        <li><a href="#upload"     class="nav-link">Scan</a></li>
+        <li><a href="#statistics" class="nav-link">Stats</a></li>
+        <li><a href="#about"      class="nav-link">About</a></li>
+      </ul>
+
+      <!-- CTA button -->
+      <a href="#upload" class="nav-cta">Start Scan</a>
+
+      <!-- Mobile hamburger -->
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════════════════════════
+       HERO SECTION
+  ══════════════════════════════════════════════════ -->
+  <section class="hero" id="hero">
+    <div class="hero-content">
+
+      <!-- Badge pill -->
+      <div class="hero-badge fade-up delay-1">
+        <span class="badge-dot"></span>
+        AI-Powered Medical Imaging
+      </div>
+
+      <!-- Main heading -->
+      <h1 class="hero-title fade-up delay-2">
+        AI Brain Tumor<br />
+        <span class="gradient-text">Detection System</span>
+      </h1>
+
+      <!-- Sub-copy -->
+      <p class="hero-sub fade-up delay-3">
+        Upload an MRI scan and receive an instant AI-powered analysis.<br />
+        Accurate. Fast. Designed for clarity.
+      </p>
+
+      <!-- CTA row -->
+      <div class="hero-ctas fade-up delay-4">
+        <a href="#upload" class="btn-primary">
+          <i class="ph-bold ph-upload-simple"></i>
+          Upload MRI Scan
+        </a>
+        <a href="#about" class="btn-ghost">Learn how it works</a>
+      </div>
+
+      <!-- Floating stats mini-cards -->
+      <div class="hero-stats fade-up delay-5">
+        <div class="mini-stat">
+          <span class="mini-val" data-target="98.6">0</span><span>%</span>
+          <span class="mini-label">Accuracy</span>
+        </div>
+        <div class="mini-divider"></div>
+        <div class="mini-stat">
+          <span class="mini-val" data-target="120000">0</span><span>+</span>
+          <span class="mini-label">Scans Analyzed</span>
+        </div>
+        <div class="mini-divider"></div>
+        <div class="mini-stat">
+          <span class="mini-val" data-target="1.2">0</span><span>s</span>
+          <span class="mini-label">Detection Speed</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Decorative glow orbs -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       UPLOAD / DETECTION SECTION
+  ══════════════════════════════════════════════════ -->
+  <section class="upload-section" id="upload">
+    <div class="section-header fade-up">
+      <p class="section-eyebrow">Diagnostic Tool</p>
+      <h2 class="section-title">Upload Your <span class="gradient-text">MRI Scan</span></h2>
+      <p class="section-sub">Drag & drop or browse to upload. Supports PNG, JPG, JPEG.</p>
+    </div>
+
+    <div class="upload-grid">
+
+      <!-- ── Left: Drop Zone ── -->
+      <div class="glass-card upload-card fade-up delay-1">
+        <div class="drop-zone" id="dropZone">
+          <!-- Default state -->
+          <div class="drop-default" id="dropDefault">
+            <div class="drop-icon">
+              <i class="ph-bold ph-scan"></i>
+            </div>
+            <p class="drop-title">Drop your MRI scan here</p>
+            <p class="drop-hint">or click to browse files</p>
+            <span class="drop-types">PNG · JPG · JPEG · up to 16 MB</span>
+          </div>
+
+          <!-- Preview state (hidden until image chosen) -->
+          <div class="drop-preview" id="dropPreview" style="display:none;">
+            <img id="previewImg" src="" alt="MRI Preview" />
+            <div class="preview-overlay">
+              <span class="preview-name" id="previewName"></span>
+              <button class="preview-remove" id="removeBtn" aria-label="Remove image">
+                <i class="ph-bold ph-x"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Hidden file input -->
+          <input type="file" id="fileInput" accept="image/*" hidden />
+        </div>
+
+        <!-- Detect button -->
+        <button class="btn-detect" id="detectBtn" disabled>
+          <i class="ph-bold ph-brain"></i>
+          Detect Tumor
+        </button>
+      </div>
+
+      <!-- ── Right: Result Panel ── -->
+      <div class="glass-card result-card fade-up delay-2" id="resultCard">
+
+        <!-- Idle state -->
+        <div class="result-idle" id="resultIdle">
+          <div class="idle-icon"><i class="ph ph-activity"></i></div>
+          <p class="idle-title">Awaiting Scan</p>
+          <p class="idle-sub">Upload an MRI image and click <strong>Detect Tumor</strong> to begin analysis.</p>
+        </div>
+
+        <!-- Loading state -->
+        <div class="result-loading" id="resultLoading" style="display:none;">
+          <div class="loader-ring">
+            <div class="loader-inner"></div>
+          </div>
+          <p class="loading-label">Analysing MRI scan…</p>
+          <div class="loading-steps" id="loadingSteps">
+            <span class="step active" id="step1">Preprocessing image</span>
+            <span class="step" id="step2">Running neural network</span>
+            <span class="step" id="step3">Generating report</span>
+          </div>
+        </div>
+
+        <!-- Result state -->
+        <div class="result-output" id="resultOutput" style="display:none;">
+          <!-- Status badge -->
+          <div class="result-badge" id="resultBadge"></div>
+
+          <!-- Result label -->
+          <h3 class="result-label" id="resultLabel"></h3>
+
+          <!-- Confidence bar -->
+          <div class="conf-section">
+            <div class="conf-header">
+              <span>Confidence Score</span>
+              <span class="conf-value" id="confValue">0%</span>
+            </div>
+            <div class="conf-track">
+              <div class="conf-fill" id="confFill"></div>
+            </div>
+          </div>
+
+          <!-- Message -->
+          <p class="result-message" id="resultMessage"></p>
+
+          <!-- Demo mode notice -->
+          <div class="demo-notice" id="demoNotice" style="display:none;">
+            <i class="ph ph-warning"></i>
+            Demo mode — no trained model loaded. Results are illustrative only.
+          </div>
+
+          <!-- Scan again button -->
+          <button class="btn-ghost full-width" id="scanAgainBtn">
+            <i class="ph-bold ph-arrow-counter-clockwise"></i>
+            Scan Another Image
+          </button>
+        </div>
+
+        <!-- Error state -->
+        <div class="result-error" id="resultError" style="display:none;">
+          <div class="error-icon"><i class="ph-bold ph-warning-circle"></i></div>
+          <p class="error-title">Analysis Failed</p>
+          <p class="error-msg" id="errorMsg"></p>
+          <button class="btn-ghost full-width" id="retryBtn">
+            <i class="ph-bold ph-arrow-counter-clockwise"></i>
+            Try Again
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       STATISTICS SECTION
+  ══════════════════════════════════════════════════ -->
+  <section class="statistics" id="statistics">
+    <div class="section-header fade-up">
+      <p class="section-eyebrow">Performance Metrics</p>
+      <h2 class="section-title">System <span class="gradient-text">Statistics</span></h2>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card glass-card fade-up delay-1">
+        <div class="stat-icon purple"><i class="ph-bold ph-chart-line-up"></i></div>
+        <div class="stat-number" data-target="98.6">0</div>
+        <div class="stat-suffix">%</div>
+        <div class="stat-label">Detection Accuracy</div>
+        <div class="stat-sub">Validated on 50 k+ MRI scans</div>
+      </div>
+
+      <div class="stat-card glass-card fade-up delay-2">
+        <div class="stat-icon blue"><i class="ph-bold ph-scan"></i></div>
+        <div class="stat-number" data-target="120000">0</div>
+        <div class="stat-suffix">+</div>
+        <div class="stat-label">Scans Analysed</div>
+        <div class="stat-sub">Across 30+ medical centres</div>
+      </div>
+
+      <div class="stat-card glass-card fade-up delay-3">
+        <div class="stat-icon teal"><i class="ph-bold ph-lightning"></i></div>
+        <div class="stat-number" data-target="1.2">0</div>
+        <div class="stat-suffix">s</div>
+        <div class="stat-label">Avg. Detection Speed</div>
+        <div class="stat-sub">Real-time GPU inference</div>
+      </div>
+
+      <div class="stat-card glass-card fade-up delay-4">
+        <div class="stat-icon pink"><i class="ph-bold ph-shield-check"></i></div>
+        <div class="stat-number" data-target="99.1">0</div>
+        <div class="stat-suffix">%</div>
+        <div class="stat-label">Uptime Reliability</div>
+        <div class="stat-sub">Enterprise-grade infrastructure</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       HOW IT WORKS
+  ══════════════════════════════════════════════════ -->
+  <section class="how-it-works" id="about">
+    <div class="section-header fade-up">
+      <p class="section-eyebrow">Process</p>
+      <h2 class="section-title">How It <span class="gradient-text">Works</span></h2>
+    </div>
+
+    <div class="steps-row">
+      <div class="step-item fade-up delay-1">
+        <div class="step-num">01</div>
+        <div class="step-icon"><i class="ph-bold ph-upload-simple"></i></div>
+        <h3>Upload MRI</h3>
+        <p>Drag & drop your brain MRI scan. We accept all standard imaging formats.</p>
+      </div>
+      <div class="step-arrow"><i class="ph ph-arrow-right"></i></div>
+
+      <div class="step-item fade-up delay-2">
+        <div class="step-num">02</div>
+        <div class="step-icon"><i class="ph-bold ph-cpu"></i></div>
+        <h3>AI Analysis</h3>
+        <p>Our deep learning model processes the scan through multiple convolutional layers.</p>
+      </div>
+      <div class="step-arrow"><i class="ph ph-arrow-right"></i></div>
+
+      <div class="step-item fade-up delay-3">
+        <div class="step-num">03</div>
+        <div class="step-icon"><i class="ph-bold ph-file-text"></i></div>
+        <h3>Get Results</h3>
+        <p>Receive a clear, confidence-scored report instantly — no waiting required.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════
+       DISCLAIMER BANNER
+  ══════════════════════════════════════════════════ -->
+  <div class="disclaimer-banner fade-up">
+    <i class="ph ph-info"></i>
+    <strong>Medical Disclaimer:</strong> NeuraScan AI is a screening aid only and does not replace professional medical diagnosis. Always consult a qualified healthcare provider.
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="logo-icon"><i class="ph-bold ph-brain"></i></span>
+        <span class="logo-text">Neura<span class="accent">Scan</span> AI</span>
+      </div>
+      <p class="footer-copy">© 2025 NeuraScan AI. Built for educational purposes.</p>
+      <div class="footer-icons">
+        <a href="#" aria-label="GitHub"><i class="ph-bold ph-github-logo"></i></a>
+        <a href="#" aria-label="Twitter"><i class="ph-bold ph-twitter-logo"></i></a>
+        <a href="#" aria-label="Email"><i class="ph-bold ph-envelope"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Our JS logic -->
+  <script src="/static/script.js"></script>
+</body>
+</html>

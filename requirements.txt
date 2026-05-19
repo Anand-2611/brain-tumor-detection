@@ -1,0 +1,5 @@
+flask>=3.0
+pillow>=10.0
+numpy>=1.24
+tensorflow>=2.13       # remove if you don't need real AI prediction
+werkzeug>=3.0
